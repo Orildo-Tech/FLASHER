@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security Vulnerability Reporting
+    url: mailto:security.flasher@orildo.sbs
+    about: Please report security vulnerabilities privately via email.
+  - name: Architecture Discussion & Q&A
+    url: https://github.com/flasher-project/flasher/discussions
+    about: Ask questions and discuss architectural ideas with maintainers.

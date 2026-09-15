@@ -1,0 +1,138 @@
+{
+  "name": "flasher",
+  "version": "1.0.0",
+  "description": "A fast, modern, safe, open-source OS image burner",
+  "main": "./out/main/index.js",
+  "license": "Apache-2.0",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "pre": "electron-vite preview",
+    "start": "electron .",
+    "go": "npm run build && clear && npm run pre",
+    "build:rpm": "electron-vite build && electron-builder --linux rpm --publish never",
+    "build:deb": "electron-vite build && electron-builder --linux deb --publish never",
+    "build:win": "electron-vite build && electron-builder --win --publish never",
+    "build:mac": "electron-vite build && electron-builder --mac --publish never",
+    "build:appimage": "electron-vite build && electron-builder --linux AppImage --publish never"
+  },
+  "dependencies": {
+    "drivelist": "^12.0.0",
+    "lucide-react": "^0.363.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "@types/react": "^18.2.70",
+    "@types/react-dom": "^18.2.22",
+    "@vitejs/plugin-react": "^4.2.1",
+    "electron": "^29.1.5",
+    "electron-builder": "^26.15.3",
+    "electron-vite": "^2.1.0",
+    "typescript": "^5.4.3",
+    "vite": "^5.1.6"
+  },
+  "allowScripts": {
+    "drivelist@12.0.2": true,
+    "electron@29.4.6": true,
+    "esbuild@0.21.5": true,
+    "electron-winstaller@5.4.0": true
+  },
+  "homepage": "https://flasher.orildo.sbs",
+  "author": {
+    "name": "SYED SAMEER UL HASSAN",
+    "email": "flasher@orildo.sbs"
+  },
+  "build": {
+    "appId": "sbs.orildo.flasher",
+    "productName": "Flasher",
+    "publish": null,
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "out/**/*",
+      "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}"
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "out/main/elevated-helper.js"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "artifactName": "${productName}-Setup-${version}-${arch}.${ext}",
+      "requestedExecutionLevel": "asInvoker"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Flasher",
+      "uninstallDisplayName": "Flasher - OS Image Burner",
+      "deleteAppDataOnUninstall": false
+    },
+    "portable": {
+      "artifactName": "${productName}-Portable-${version}-${arch}.${ext}"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        },
+        {
+          "target": "zip",
+          "arch": ["x64", "arm64"]
+        }
+      ],
+      "icon": "build/icon.png",
+      "category": "public.app-category.utilities",
+      "artifactName": "${productName}-${version}-${arch}.${ext}",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "minimumSystemVersion": "10.15.0"
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ],
+      "window": {
+        "width": 540,
+        "height": 380
+      }
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb",
+        "rpm"
+      ],
+      "icon": "build/icon.png",
+      "category": "Utility",
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    }
+  }
+}
