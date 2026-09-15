@@ -1,0 +1,118 @@
+name: v1.0.0
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build (${{ matrix.platform }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+          - os: macos-latest
+            platform: mac
+          - os: windows-latest
+            platform: win
+
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rpm
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Build Linux packages (RPM, DEB, AppImage)
+        if: runner.os == 'Linux'
+        run: |
+          npm run build
+          npx electron-builder --linux rpm deb AppImage --publish never
+
+      - name: Build macOS packages (DMG, ZIP)
+        if: runner.os == 'macOS'
+        run: |
+          npm run build:mac
+
+      - name: Build Windows packages (NSIS Setup & Portable EXE)
+        if: runner.os == 'Windows'
+        run: |
+          npm run build:win
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts-${{ matrix.platform }}
+          path: |
+            dist/*.rpm
+            dist/*.deb
+            dist/*.AppImage
+            dist/*.dmg
+            dist/*.zip
+            dist/*.exe
+          if-no-files-found: ignore
+          retention-days: 2
+
+  release:
+    name: Create GitHub Release
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract version from package.json
+        id: pkg
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.pkg.outputs.version }}
+          name: Flasher v${{ steps.pkg.outputs.version }}
+          body_path: .github/workflows/release-v:1.0.0.md
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+          files: |
+            release-assets/*.rpm
+            release-assets/*.deb
+            release-assets/*.AppImage
+            release-assets/*.dmg
+            release-assets/*.zip
+            release-assets/*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
