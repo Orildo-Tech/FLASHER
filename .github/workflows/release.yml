@@ -103,7 +103,7 @@ jobs:
         with:
           tag_name: v${{ steps.pkg.outputs.version }}
           name: Flasher v${{ steps.pkg.outputs.version }}
-          body_path: .github/release-v:1.0.0.md
+          body_path: .github/release-notes.md
           draft: false
           prerelease: false
           generate_release_notes: false

@@ -65,4 +65,3 @@ Writing directly to physical block devices requires administrative permissions. 
 ## Source Code and Verification
 
 Source code archives are generated automatically and attached below in zip and tar.gz formats. To build Flasher from source, follow the instructions in the project repository.
-
